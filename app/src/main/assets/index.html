@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#287a45"><title>دستیار گلخانه</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f2;color:#1d2b22;font-family:Tahoma,Arial,sans-serif}
+header{background:#287a45;color:white;padding:20px 16px;border-radius:0 0 18px 18px}
+h1{font-size:21px;margin:0 0 7px}.sub{font-size:12px;opacity:.9}
+main{padding:14px;max-width:760px;margin:auto}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
+button{border:0;border-radius:10px;padding:11px 13px;background:#e1ebe2;color:#205c35;font-family:inherit;font-size:13px}
+button.active,.primary{background:#287a45;color:#fff}.card{background:#fff;border:1px solid #e0e8df;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #193b1b0a}
+label{display:block;font-size:12px;margin:10px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid #d7e0d6;border-radius:9px;font:14px Tahoma;background:#fff}
+textarea{min-height:70px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.muted{font-size:12px;color:#65736a}.item{border-bottom:1px solid #edf0ed;padding:10px 0}.item:last-child{border:0}.danger{background:#fbe8e6;color:#a32d24}.hide{display:none}
+</style></head><body>
+<header><h1>🌱 دستیار گلخانه</h1><div class="sub">مدیریت گلخانه‌داران و برنامه عملیات روزانه و هفتگی</div></header>
+<main>
+<div class="tabs">
+<button class="active" data-tab="farms">گلخانه‌داران</button><button data-tab="ops">ثبت عملیات</button><button data-tab="history">سوابق</button><button data-tab="backup">پشتیبان</button>
+</div>
+<section id="farms">
+<div class="card"><b>افزودن پرونده گلخانه</b>
+<label>نام گلخانه‌دار</label><input id="farmer" placeholder="نام و نام خانوادگی">
+<div class="grid"><div><label>شماره تماس</label><input id="phone" inputmode="tel"></div><div><label>شهر / منطقه</label><input id="city"></div></div>
+<div class="grid"><div><label>محصول</label><select id="crop"><option>فلفل دلمه‌ای</option><option>گوجه‌فرنگی</option><option>خیار</option><option>بادمجان</option><option>سایر</option></select></div><div><label>متراژ (مترمربع)</label><input id="area" type="number"></div></div>
+<label>توضیحات</label><textarea id="farmnote"></textarea><button class="primary" onclick="addFarm()">ذخیره پرونده</button></div>
+<div class="card"><b>فهرست گلخانه‌داران</b><div id="farmList" class="muted">هنوز پرونده‌ای ثبت نشده است.</div></div>
+</section>
+<section id="ops" class="hide">
+<div class="card"><b>ثبت برنامه یا عملیات</b>
+<label>گلخانه‌دار</label><select id="farmSelect"></select>
+<div class="grid"><div><label>نوع عملیات</label><select id="kind"><option>آبیاری</option><option>کودآبیاری</option><option>محلول‌پاشی</option><option>سمپاشی</option><option>بازدید و پایش</option><option>تهویه و اقلیم</option><option>هرس و تربیت</option><option>برداشت</option><option>ضدعفونی و بهداشت</option><option>سایر</option></select></div><div><label>تاریخ</label><input id="opdate" type="date"></div></div>
+<div class="grid"><div><label>ساعت</label><input id="optime" type="time"></div><div><label>وضعیت</label><select id="status"><option>در انتظار</option><option>انجام‌شده</option><option>لغوشده</option></select></div></div>
+<label>مقدار، دز ثبت‌شده یا حجم مخزن</label><input id="dose" placeholder="مثلاً ۵۰۰ لیتر آب / مطابق برچسب">
+<label>توضیحات و نتیجه</label><textarea id="opnote"></textarea>
+<button class="primary" onclick="addOp()">ثبت عملیات</button>
+<p class="muted">توجه: دز سم و کود باید توسط کارشناس و مطابق برچسب رسمی و مقررات محلی تعیین و ثبت شود.</p></div></section>
+<section id="history" class="hide"><div class="card"><b>تاریخچه عملیات</b><div id="opList" class="muted">عملیاتی ثبت نشده است.</div></div></section>
+<section id="backup" class="hide"><div class="card"><b>پشتیبان‌گیری و بازیابی</b><p class="muted">اطلاعات روی همین دستگاه ذخیره می‌شود. برای انتقال یا نگهداری، فایل پشتیبان بگیر.</p><button class="primary" onclick="backup()">دریافت فایل پشتیبان</button><label>بازیابی از فایل پشتیبان</label><input type="file" id="restoreFile" accept=".json"><button onclick="restore()">بازیابی اطلاعات</button><button class="danger" onclick="clearAll()">پاک کردن همه اطلاعات</button></div></section>
+</main>
+<script>
+const get=(k,d=[])=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let farms=get('farms'), ops=get('ops');
+function render(){
+ document.getElementById('farmList').innerHTML=farms.length?farms.map((f,i)=>`<div class="item"><b>${esc(f.name)}</b> — ${esc(f.crop)}<div class="muted">${esc(f.city)} | ${esc(f.area)} مترمربع | ${esc(f.phone)}</div><button class="danger" onclick="delFarm(${i})">حذف</button></div>`).join(''):'هنوز پرونده‌ای ثبت نشده است.';
+ document.getElementById('farmSelect').innerHTML=farms.map((f,i)=>`<option value="${i}">${esc(f.name)} - ${esc(f.crop)}</option>`).join('');
+ document.getElementById('opList').innerHTML=ops.length?ops.slice().reverse().map((o,i)=>`<div class="item"><b>${esc(o.kind)}</b> — ${esc(o.farm)}<div class="muted">${esc(o.date)} ${esc(o.time)} | ${esc(o.status)}</div><div>${esc(o.dose)}</div><div>${esc(o.note)}</div></div>`).join(''):'عملیاتی ثبت نشده است.';
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function addFarm(){let name=farmer.value.trim();if(!name)return alert('نام گلخانه‌دار را وارد کنید');farms.push({name,phone:phone.value,city:city.value,crop:crop.value,area:area.value,note:farmnote.value});put('farms',farms);['farmer','phone','city','area','farmnote'].forEach(x=>document.getElementById(x).value='');render();alert('پرونده ذخیره شد')}
+function delFarm(i){if(confirm('پرونده حذف شود؟')){farms.splice(i,1);put('farms',farms);render()}}
+function addOp(){if(!farms.length)return alert('ابتدا یک گلخانه‌دار ثبت کنید');let i=+farmSelect.value;ops.push({farm:farms[i].name,kind:kind.value,date:opdate.value,time:optime.value,status:status.value,dose:dose.value,note:opnote.value});put('ops',ops);dose.value='';opnote.value='';render();alert('عملیات ثبت شد')}
+function backup(){let blob=new Blob([JSON.stringify({farms,ops},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='greenhouse-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function restore(){let f=restoreFile.files[0];if(!f)return alert('فایل را انتخاب کنید');let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);farms=d.farms||[];ops=d.ops||[];put('farms',farms);put('ops',ops);render();alert('بازیابی انجام شد')}catch(e){alert('فایل معتبر نیست')}};r.readAsText(f)}
+function clearAll(){if(confirm('همه اطلاعات پاک شود؟')){farms=[];ops=[];put('farms',farms);put('ops',ops);render()}}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('main section').forEach(s=>s.classList.add('hide'));document.getElementById(b.dataset.tab).classList.remove('hide')});
+render();
+</script></body></html>
