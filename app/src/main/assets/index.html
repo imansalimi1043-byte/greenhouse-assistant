@@ -1,57 +1,239 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#287a45"><title>دستیار گلخانه</title>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#287a45">
+<title>دستیار گلخانه</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f6f2;color:#1d2b22;font-family:Tahoma,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f2;color:#1d2b22;font-family:Tahoma,Arial,sans-serif}
 header{background:#287a45;color:white;padding:20px 16px;border-radius:0 0 18px 18px}
 h1{font-size:21px;margin:0 0 7px}.sub{font-size:12px;opacity:.9}
-main{padding:14px;max-width:760px;margin:auto}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
-button{border:0;border-radius:10px;padding:11px 13px;background:#e1ebe2;color:#205c35;font-family:inherit;font-size:13px}
-button.active,.primary{background:#287a45;color:#fff}.card{background:#fff;border:1px solid #e0e8df;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #193b1b0a}
-label{display:block;font-size:12px;margin:10px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid #d7e0d6;border-radius:9px;font:14px Tahoma;background:#fff}
-textarea{min-height:70px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.muted{font-size:12px;color:#65736a}.item{border-bottom:1px solid #edf0ed;padding:10px 0}.item:last-child{border:0}.danger{background:#fbe8e6;color:#a32d24}.hide{display:none}
-</style></head><body>
-<header><h1>🌱 دستیار گلخانه</h1><div class="sub">مدیریت گلخانه‌داران و برنامه عملیات روزانه و هفتگی</div></header>
+main{padding:14px;max-width:900px;margin:auto}
+.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
+button{border:0;border-radius:10px;padding:11px 13px;background:#e1ebe2;color:#205c35;font-family:inherit;font-size:13px;cursor:pointer}
+button.active,.primary{background:#287a45;color:#fff}
+.card{background:#fff;border:1px solid #e0e8df;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #193b1b0a}
+label{display:block;font-size:12px;margin:10px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #d7e0d6;border-radius:9px;font:14px Tahoma;background:#fff;color:#1d2b22}
+textarea{min-height:76px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.muted{font-size:12px;color:#65736a;line-height:1.9}
+.item{border-bottom:1px solid #edf0ed;padding:10px 0;line-height:1.9}
+.item:last-child{border:0}.danger{background:#fbe8e6;color:#a32d24}
+.hide{display:none!important}
+.rec-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+th,td{border:1px solid #cfd8cf;padding:8px;text-align:right;vertical-align:top;line-height:1.8}
+th{background:#eaf1e9}
+.calendar{position:fixed;inset:0;background:#0006;z-index:99;display:flex;align-items:center;justify-content:center;padding:14px}
+.calendar-box{background:#fff;border-radius:14px;padding:14px;width:min(360px,100%);box-shadow:0 8px 30px #0003}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:10px}
+.cal-head button{padding:8px;font-size:11px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal-grid span,.cal-grid button{padding:8px 0;font-size:12px}
+.cal-grid .weekday{font-weight:bold;color:#65736a}
+.cal-grid button{background:#f0f5f0;color:#205c35;padding:8px 0}
+.cal-grid button.selected{background:#287a45;color:white}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.tabs{padding-bottom:4px}table{font-size:10px}th,td{padding:5px}}
+@media print{
+ body *{visibility:hidden!important}
+ #recommendations,#recommendations *{visibility:visible!important}
+ #recommendations{display:block!important;position:absolute;inset:0;width:100%;padding:0}
+ #recommendations .card{box-shadow:none;border:0;margin:0;padding:6px}
+ #recommendations .no-print{display:none!important}
+ #recTableWrap{overflow:visible}
+ table{font-size:10px}th,td{padding:5px}
+}
+</style>
+</head>
+<body>
+<header><h1>🌱 دستیار گلخانه</h1><div class="sub">مدیریت گلخانه‌داران، عملیات و توصیه‌های فنی گلخانه</div></header>
 <main>
 <div class="tabs">
-<button class="active" data-tab="farms">گلخانه‌داران</button><button data-tab="ops">ثبت عملیات</button><button data-tab="history">سوابق</button><button data-tab="backup">پشتیبان</button>
+<button class="active" data-tab="farms">گلخانه‌داران</button>
+<button data-tab="ops">ثبت عملیات</button>
+<button data-tab="history">سوابق</button>
+<button data-tab="recommendations">توصیه‌های گلخانه‌ای</button>
+<button data-tab="backup">پشتیبان</button>
 </div>
+
 <section id="farms">
 <div class="card"><b>افزودن پرونده گلخانه</b>
 <label>نام گلخانه‌دار</label><input id="farmer" placeholder="نام و نام خانوادگی">
 <div class="grid"><div><label>شماره تماس</label><input id="phone" inputmode="tel"></div><div><label>شهر / منطقه</label><input id="city"></div></div>
-<div class="grid"><div><label>محصول</label><select id="crop"><option>فلفل دلمه‌ای</option><option>گوجه‌فرنگی</option><option>خیار</option><option>بادمجان</option><option>سایر</option></select></div><div><label>متراژ (مترمربع)</label><input id="area" type="number"></div></div>
-<label>توضیحات</label><textarea id="farmnote"></textarea><button class="primary" onclick="addFarm()">ذخیره پرونده</button></div>
+<div class="grid"><div><label>محصول</label><select id="crop"><option>فلفل دلمه‌ای</option><option>گوجه‌فرنگی</option><option>خیار</option><option>بادمجان</option><option>توت‌فرنگی</option><option>سایر</option></select></div><div><label>متراژ (مترمربع)</label><input id="area" type="number"></div></div>
+<label>توضیحات</label><textarea id="farmnote"></textarea>
+<button class="primary" onclick="addFarm()">ذخیره پرونده</button></div>
 <div class="card"><b>فهرست گلخانه‌داران</b><div id="farmList" class="muted">هنوز پرونده‌ای ثبت نشده است.</div></div>
 </section>
+
 <section id="ops" class="hide">
 <div class="card"><b>ثبت برنامه یا عملیات</b>
 <label>گلخانه‌دار</label><select id="farmSelect"></select>
-<div class="grid"><div><label>نوع عملیات</label><select id="kind"><option>آبیاری</option><option>کودآبیاری</option><option>محلول‌پاشی</option><option>سمپاشی</option><option>بازدید و پایش</option><option>تهویه و اقلیم</option><option>هرس و تربیت</option><option>برداشت</option><option>ضدعفونی و بهداشت</option><option>سایر</option></select></div><div><label>تاریخ</label><input id="opdate" type="date"></div></div>
+<div class="grid"><div><label>نوع عملیات</label><select id="kind"><option>آبیاری</option><option>کودآبیاری</option><option>محلول‌پاشی</option><option>سمپاشی</option><option>بازدید و پایش</option><option>تهویه و اقلیم</option><option>هرس و تربیت</option><option>برداشت</option><option>ضدعفونی و بهداشت</option><option>سایر</option></select></div>
+<div><label>تاریخ شمسی</label><input id="opdate" class="jdate" type="text" readonly placeholder="انتخاب تاریخ شمسی"></div></div>
 <div class="grid"><div><label>ساعت</label><input id="optime" type="time"></div><div><label>وضعیت</label><select id="status"><option>در انتظار</option><option>انجام‌شده</option><option>لغوشده</option></select></div></div>
 <label>مقدار، دز ثبت‌شده یا حجم مخزن</label><input id="dose" placeholder="مثلاً ۵۰۰ لیتر آب / مطابق برچسب">
 <label>توضیحات و نتیجه</label><textarea id="opnote"></textarea>
 <button class="primary" onclick="addOp()">ثبت عملیات</button>
-<p class="muted">توجه: دز سم و کود باید توسط کارشناس و مطابق برچسب رسمی و مقررات محلی تعیین و ثبت شود.</p></div></section>
+<p class="muted">توجه: دز سم و کود باید توسط کارشناس و مطابق برچسب رسمی و مقررات محلی تعیین و ثبت شود.</p></div>
+</section>
+
 <section id="history" class="hide"><div class="card"><b>تاریخچه عملیات</b><div id="opList" class="muted">عملیاتی ثبت نشده است.</div></div></section>
-<section id="backup" class="hide"><div class="card"><b>پشتیبان‌گیری و بازیابی</b><p class="muted">اطلاعات روی همین دستگاه ذخیره می‌شود. برای انتقال یا نگهداری، فایل پشتیبان بگیر.</p><button class="primary" onclick="backup()">دریافت فایل پشتیبان</button><label>بازیابی از فایل پشتیبان</label><input type="file" id="restoreFile" accept=".json"><button onclick="restore()">بازیابی اطلاعات</button><button class="danger" onclick="clearAll()">پاک کردن همه اطلاعات</button></div></section>
+
+<section id="recommendations" class="hide">
+<div class="card">
+<b>ثبت توصیه گلخانه‌ای</b>
+<div class="grid">
+<div><label>تاریخ شمسی</label><input id="recDate" class="jdate" type="text" readonly placeholder="انتخاب تاریخ شمسی"></div>
+<div><label>محصول</label><select id="recCrop"><option>فلفل دلمه‌ای</option><option>گوجه‌فرنگی</option><option>خیار</option><option>بادمجان</option><option>توت‌فرنگی</option><option>عمومی</option></select></div>
+</div>
+<label>مرحله رشد / شرایط گلخانه</label><input id="recStage" placeholder="مثلاً گلدهی، تشکیل میوه، هوای سرد">
+<label>موضوع توصیه</label><input id="recTitle" placeholder="مثلاً مدیریت آبیاری و رطوبت">
+<label>متن توصیه و اقدام پیشنهادی</label><textarea id="recAdvice" placeholder="توصیه را کامل و روشن بنویسید"></textarea>
+<label>نکته تکمیلی / پیگیری</label><textarea id="recFollow" placeholder="در صورت نیاز"></textarea>
+<button class="primary" onclick="addRecommendation()">ثبت توصیه</button>
+</div>
+<div class="card">
+<div class="rec-head"><b>جدول توصیه‌های گلخانه‌ای</b><button class="primary no-print" onclick="exportRecommendationsPdf()">تهیه فایل PDF</button></div>
+<div id="recTableWrap"><div id="recTable" class="muted">هنوز توصیه‌ای ثبت نشده است.</div></div>
+<p class="muted no-print">پس از انتخاب «تهیه فایل PDF»، در پنجره چاپ گزینه «ذخیره به‌صورت PDF» را انتخاب کنید. سپس فایل را از گوشی به اشتراک بگذارید.</p>
+</div>
+</section>
+
+<section id="backup" class="hide"><div class="card"><b>پشتیبان‌گیری و بازیابی</b>
+<p class="muted">اطلاعات روی همین دستگاه ذخیره می‌شود. برای انتقال یا نگهداری، فایل پشتیبان بگیرید.</p>
+<button class="primary" onclick="backup()">دریافت فایل پشتیبان</button>
+<label>بازیابی از فایل پشتیبان</label><input type="file" id="restoreFile" accept=".json">
+<button onclick="restore()">بازیابی اطلاعات</button>
+<button class="danger" onclick="clearAll()">پاک کردن همه اطلاعات</button></div></section>
 </main>
+
+<div id="jalaliCalendar" class="calendar hide"></div>
+
 <script>
 const get=(k,d=[])=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
 const put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-let farms=get('farms'), ops=get('ops');
+let farms=get('farms'), ops=get('ops'), recommendations=get('recommendations');
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function faNum(n){return String(n).replace(/\d/g,x=>'۰۱۲۳۴۵۶۷۸۹'[+x])}
+const persianFmt=new Intl.DateTimeFormat('en-US-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric',timeZone:'UTC'});
+function jalaliParts(iso){
+ const d=new Date(iso+'T12:00:00Z'),p=persianFmt.formatToParts(d);
+ return {y:+p.find(x=>x.type==='year').value,m:+p.find(x=>x.type==='month').value,d:+p.find(x=>x.type==='day').value};
+}
+function jalaliDisplay(iso){
+ if(!iso)return '';
+ const p=jalaliParts(iso);
+ return [p.y,p.m,p.d].map(faNum).join('/');
+}
+function todayISO(){
+ const d=new Date();
+ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function isoForJalali(y,m,d){
+ for(let gy=y+620;gy<=y+622;gy++){
+  for(let t=Date.UTC(gy,0,1,12);t<=Date.UTC(gy,11,31,12);t+=86400000){
+   const dt=new Date(t),p=jalaliParts(dt.toISOString().slice(0,10));
+   if(p.y===y&&p.m===m&&p.d===d)return dt.toISOString().slice(0,10);
+  }
+ }
+ return null;
+}
+const jalaliMonths=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const jalaliWeek=['ش','ی','د','س','چ','پ','ج'];
+let activeDateInput=null,calYear=0,calMonth=0;
+function openJalaliCalendar(el){
+ activeDateInput=el;
+ const p=jalaliParts(el.dataset.iso||todayISO());
+ calYear=p.y;calMonth=p.m;drawCalendar();
+}
+function drawCalendar(){
+ const wrap=document.getElementById('jalaliCalendar');
+ const first=isoForJalali(calYear,calMonth,1);
+ const firstDate=new Date(first+'T12:00:00Z');
+ const offset=(firstDate.getUTCDay()+1)%7;
+ let days=0;
+ for(let d=1;d<=31;d++){if(!isoForJalali(calYear,calMonth,d))break;days++}
+ const selected=activeDateInput.dataset.iso||'';
+ wrap.innerHTML='<div class="calendar-box"><div class="cal-head"><button type="button" id="calPrev">ماه قبل</button><b>'+jalaliMonths[calMonth-1]+' '+faNum(calYear)+'</b><button type="button" id="calNext">ماه بعد</button></div><div class="cal-grid">'+
+ jalaliWeek.map(x=>'<span class="weekday">'+x+'</span>').join('')+
+ Array(offset).fill('<span></span>').join('')+
+ Array.from({length:days},(_,i)=>{const day=i+1,iso=isoForJalali(calYear,calMonth,day);return '<button type="button" data-day="'+day+'" class="'+(iso===selected?'selected':'')+'">'+faNum(day)+'</button>'}).join('')+
+ '</div><div style="text-align:left;margin-top:10px"><button type="button" id="calClose">بستن</button></div></div>';
+ wrap.classList.remove('hide');
+ document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<1){calMonth=12;calYear--}drawCalendar()};
+ document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>12){calMonth=1;calYear++}drawCalendar()};
+ document.getElementById('calClose').onclick=()=>wrap.classList.add('hide');
+ wrap.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{
+  const iso=isoForJalali(calYear,calMonth,+b.dataset.day);
+  activeDateInput.dataset.iso=iso;activeDateInput.value=jalaliDisplay(iso);wrap.classList.add('hide');
+ });
+}
+document.querySelectorAll('.jdate').forEach(el=>el.addEventListener('click',()=>openJalaliCalendar(el)));
+document.getElementById('jalaliCalendar').addEventListener('click',e=>{if(e.target.id==='jalaliCalendar')e.currentTarget.classList.add('hide')});
+['opdate','recDate'].forEach(id=>{const el=document.getElementById(id);el.dataset.iso=todayISO();el.value=jalaliDisplay(el.dataset.iso)});
+
 function render(){
  document.getElementById('farmList').innerHTML=farms.length?farms.map((f,i)=>`<div class="item"><b>${esc(f.name)}</b> — ${esc(f.crop)}<div class="muted">${esc(f.city)} | ${esc(f.area)} مترمربع | ${esc(f.phone)}</div><button class="danger" onclick="delFarm(${i})">حذف</button></div>`).join(''):'هنوز پرونده‌ای ثبت نشده است.';
  document.getElementById('farmSelect').innerHTML=farms.map((f,i)=>`<option value="${i}">${esc(f.name)} - ${esc(f.crop)}</option>`).join('');
- document.getElementById('opList').innerHTML=ops.length?ops.slice().reverse().map((o,i)=>`<div class="item"><b>${esc(o.kind)}</b> — ${esc(o.farm)}<div class="muted">${esc(o.date)} ${esc(o.time)} | ${esc(o.status)}</div><div>${esc(o.dose)}</div><div>${esc(o.note)}</div></div>`).join(''):'عملیاتی ثبت نشده است.';
+ document.getElementById('opList').innerHTML=ops.length?ops.slice().reverse().map(o=>`<div class="item"><b>${esc(o.kind)}</b> — ${esc(o.farm)}<div class="muted">${esc(o.dateFa|| (o.date&&o.date.includes('-')?jalaliDisplay(o.date):o.date))} ${esc(o.time)} | ${esc(o.status)}</div><div>${esc(o.dose)}</div><div>${esc(o.note)}</div></div>`).join(''):'عملیاتی ثبت نشده است.';
+ renderRecommendations();
 }
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function addFarm(){let name=farmer.value.trim();if(!name)return alert('نام گلخانه‌دار را وارد کنید');farms.push({name,phone:phone.value,city:city.value,crop:crop.value,area:area.value,note:farmnote.value});put('farms',farms);['farmer','phone','city','area','farmnote'].forEach(x=>document.getElementById(x).value='');render();alert('پرونده ذخیره شد')}
+function addFarm(){
+ let name=document.getElementById('farmer').value.trim();
+ if(!name)return alert('نام گلخانه‌دار را وارد کنید');
+ farms.push({name,phone:phone.value,city:city.value,crop:crop.value,area:area.value,note:farmnote.value});
+ put('farms',farms);
+ ['farmer','phone','city','area','farmnote'].forEach(x=>document.getElementById(x).value='');
+ render();alert('پرونده ذخیره شد');
+}
 function delFarm(i){if(confirm('پرونده حذف شود؟')){farms.splice(i,1);put('farms',farms);render()}}
-function addOp(){if(!farms.length)return alert('ابتدا یک گلخانه‌دار ثبت کنید');let i=+farmSelect.value;ops.push({farm:farms[i].name,kind:kind.value,date:opdate.value,time:optime.value,status:status.value,dose:dose.value,note:opnote.value});put('ops',ops);dose.value='';opnote.value='';render();alert('عملیات ثبت شد')}
-function backup(){let blob=new Blob([JSON.stringify({farms,ops},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='greenhouse-backup.json';a.click();URL.revokeObjectURL(a.href)}
-function restore(){let f=restoreFile.files[0];if(!f)return alert('فایل را انتخاب کنید');let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);farms=d.farms||[];ops=d.ops||[];put('farms',farms);put('ops',ops);render();alert('بازیابی انجام شد')}catch(e){alert('فایل معتبر نیست')}};r.readAsText(f)}
-function clearAll(){if(confirm('همه اطلاعات پاک شود؟')){farms=[];ops=[];put('farms',farms);put('ops',ops);render()}}
-document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('main section').forEach(s=>s.classList.add('hide'));document.getElementById(b.dataset.tab).classList.remove('hide')});
+function addOp(){
+ if(!farms.length)return alert('ابتدا یک گلخانه‌دار ثبت کنید');
+ const i=+farmSelect.value,iso=opdate.dataset.iso||todayISO();
+ ops.push({farm:farms[i].name,kind:kind.value,date:iso,dateFa:jalaliDisplay(iso),time:optime.value,status:status.value,dose:dose.value,note:opnote.value});
+ put('ops',ops);dose.value='';opnote.value='';render();alert('عملیات ثبت شد');
+}
+function addRecommendation(){
+ const advice=recAdvice.value.trim();
+ if(!advice)return alert('متن توصیه را وارد کنید');
+ const iso=recDate.dataset.iso||todayISO();
+ recommendations.push({date:iso,dateFa:jalaliDisplay(iso),crop:recCrop.value,stage:recStage.value,title:recTitle.value,advice,follow:recFollow.value});
+ put('recommendations',recommendations);
+ ['recStage','recTitle','recAdvice','recFollow'].forEach(id=>document.getElementById(id).value='');
+ renderRecommendations();alert('توصیه ثبت شد');
+}
+function renderRecommendations(){
+ const box=document.getElementById('recTable');
+ if(!recommendations.length){box.innerHTML='هنوز توصیه‌ای ثبت نشده است.';return}
+ box.innerHTML='<table><thead><tr><th>تاریخ</th><th>محصول / مرحله</th><th>موضوع</th><th>توصیه و اقدام</th><th>پیگیری</th><th class="no-print">حذف</th></tr></thead><tbody>'+
+ recommendations.slice().reverse().map((r,i)=>'<tr><td>'+esc(r.dateFa||jalaliDisplay(r.date))+'</td><td>'+esc(r.crop)+'<br>'+esc(r.stage)+'</td><td>'+esc(r.title)+'</td><td>'+esc(r.advice)+'</td><td>'+esc(r.follow||'')+'</td><td class="no-print"><button class="danger" onclick="deleteRecommendation('+(recommendations.length-1-i)+')">حذف</button></td></tr>').join('')+
+ '</tbody></table>';
+}
+function deleteRecommendation(i){if(confirm('این توصیه حذف شود؟')){recommendations.splice(i,1);put('recommendations',recommendations);renderRecommendations()}}
+function exportRecommendationsPdf(){
+ if(!recommendations.length)return alert('ابتدا یک توصیه ثبت کنید');
+ if(window.Android&&Android.printPdf){Android.printPdf()}else{window.print()}
+}
+function backup(){
+ const blob=new Blob([JSON.stringify({farms,ops,recommendations},null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='greenhouse-backup.json';a.click();URL.revokeObjectURL(a.href);
+}
+function restore(){
+ const f=restoreFile.files[0];if(!f)return alert('فایل را انتخاب کنید');
+ const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);farms=d.farms||[];ops=d.ops||[];recommendations=d.recommendations||[];put('farms',farms);put('ops',ops);put('recommendations',recommendations);render();alert('بازیابی انجام شد')}catch(e){alert('فایل معتبر نیست')}};r.readAsText(f);
+}
+function clearAll(){if(confirm('همه اطلاعات از این دستگاه پاک شود؟')){farms=[];ops=[];recommendations=[];put('farms',farms);put('ops',ops);put('recommendations',recommendations);render()}}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ document.querySelectorAll('main section').forEach(s=>s.classList.add('hide'));
+ document.getElementById(b.dataset.tab).classList.remove('hide');
+});
 render();
-</script></body></html>
+</script>
+</body>
+</html>
