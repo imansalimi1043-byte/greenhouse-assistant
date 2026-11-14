@@ -235,5 +235,167 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
 });
 render();
 </script>
+ <script>
+/* افزونه انتخاب گلخانه‌دار و گزارش یکپارچه */
+(function () {
+  const section = document.getElementById('recommendations');
+  if (!section || document.getElementById('recFarmSelect')) return;
+
+  const formCard = section.querySelector('.card');
+  const firstGrid = formCard.querySelector('.grid');
+  firstGrid.insertAdjacentHTML('beforebegin',
+    '<label>گلخانه‌دار</label><select id="recFarmSelect"></select>');
+
+  section.insertAdjacentHTML('beforeend', `
+    <div class="card no-print" id="combinedReportControls">
+      <b>گزارش یکپارچه برای ارسال به گلخانه‌دار</b>
+      <label>انتخاب گلخانه‌دار</label>
+      <select id="reportFarmSelect"></select>
+      <button class="primary" id="makeCombinedPdf" style="margin-top:10px">تهیه PDF عملیات و توصیه‌ها</button>
+      <p class="muted">این گزارش شامل آبیاری، کودآبیاری، محلول‌پاشی، سمپاشی و توصیه‌های ثبت‌شده برای گلخانه‌دار انتخاب‌شده است.</p>
+    </div>
+    <div class="card" id="combinedReportPrint">
+      <h2 style="font-size:18px;margin:0 0 8px">گزارش برنامه‌ها و توصیه‌های گلخانه‌ای</h2>
+      <div id="combinedFarmerInfo"></div>
+      <div id="combinedReportTable">برای مشاهده گزارش، یک گلخانه‌دار انتخاب کنید.</div>
+    </div>
+  `);
+
+  const printStyle = document.createElement('style');
+  printStyle.textContent = `
+    @media print {
+      body * { visibility:hidden!important; }
+      #recommendations,#recommendations * { visibility:visible!important; }
+      #recommendations { display:block!important;position:absolute;inset:0;width:100%;padding:0; }
+      #recommendations > .card:not(#combinedReportPrint) { display:none!important; }
+      #combinedReportControls { display:none!important; }
+      #combinedReportPrint { display:block!important;position:absolute;inset:0;width:100%;margin:0;padding:10px;border:0;box-shadow:none; }
+      #combinedReportPrint * { visibility:visible!important; }
+      #combinedReportPrint table { width:100%;border-collapse:collapse;font-size:10px; }
+      #combinedReportPrint th,#combinedReportPrint td { border:1px solid #999;padding:6px;text-align:right;vertical-align:top;line-height:1.7; }
+      #combinedReportPrint th { background:#eaf1e9!important; }
+    }`;
+  document.head.appendChild(printStyle);
+
+  function fillFarmerChoices() {
+    const recSelect = document.getElementById('recFarmSelect');
+    const reportSelect = document.getElementById('reportFarmSelect');
+    const oldRec = recSelect.value;
+    const oldReport = reportSelect.value;
+    const options = farms.map((f, i) =>
+      `<option value="${i}">${esc(f.name)} - ${esc(f.crop || '')}</option>`).join('');
+    recSelect.innerHTML = options;
+    reportSelect.innerHTML = options;
+    if (farms[Number(oldRec)]) recSelect.value = oldRec;
+    if (farms[Number(oldReport)]) reportSelect.value = oldReport;
+  }
+
+  renderRecommendations = function () {
+    const box = document.getElementById('recTable');
+    if (!recommendations.length) {
+      box.innerHTML = 'هنوز توصیه‌ای ثبت نشده است.';
+      return;
+    }
+    box.innerHTML = '<table><thead><tr><th>گلخانه‌دار</th><th>تاریخ</th><th>محصول / مرحله</th><th>موضوع</th><th>توصیه و اقدام</th><th>پیگیری</th><th class="no-print">حذف</th></tr></thead><tbody>' +
+      recommendations.slice().reverse().map((r, i) =>
+        '<tr><td>' + esc(r.farm || 'بدون انتساب') + '</td><td>' +
+        esc(r.dateFa || (r.date ? jalaliDisplay(r.date) : '')) + '</td><td>' +
+        esc(r.crop || '') + '<br>' + esc(r.stage || '') + '</td><td>' +
+        esc(r.title || '') + '</td><td>' + esc(r.advice || '') + '</td><td>' +
+        esc(r.follow || '') + '</td><td class="no-print"><button class="danger" onclick="deleteRecommendation(' +
+        (recommendations.length - 1 - i) + ')">حذف</button></td></tr>'
+      ).join('') + '</tbody></table>';
+  };
+
+  renderCombinedReport = function () {
+    const idx = Number(document.getElementById('reportFarmSelect').value);
+    const farm = farms[idx];
+    const info = document.getElementById('combinedFarmerInfo');
+    const box = document.getElementById('combinedReportTable');
+    if (!farm) {
+      info.innerHTML = '';
+      box.innerHTML = 'ابتدا یک گلخانه‌دار ثبت کنید.';
+      return;
+    }
+    info.innerHTML = '<p><b>نام گلخانه‌دار:</b> ' + esc(farm.name) +
+      ' | <b>تلفن:</b> ' + esc(farm.phone || '—') +
+      ' | <b>شهر:</b> ' + esc(farm.city || '—') +
+      ' | <b>محصول:</b> ' + esc(farm.crop || '—') + '</p>';
+
+    const rows = [];
+    ops.filter(o => o.farm === farm.name).forEach(o => rows.push({
+      sortDate: o.date || '', date: o.dateFa || (o.date ? jalaliDisplay(o.date) : ''),
+      type: o.kind || 'عملیات', detail: o.dose || '', note: o.note || '',
+      status: o.status || ''
+    }));
+    recommendations.filter(r => r.farm === farm.name).forEach(r => rows.push({
+      sortDate: r.date || '', date: r.dateFa || (r.date ? jalaliDisplay(r.date) : ''),
+      type: 'توصیه فنی: ' + (r.title || 'عمومی'),
+      detail: (r.crop || '') + ' - ' + (r.stage || '') + '؛ ' + (r.advice || ''),
+      note: r.follow || '', status: 'توصیه'
+    }));
+    rows.sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+    box.innerHTML = rows.length
+      ? '<table><thead><tr><th>تاریخ</th><th>نوع برنامه / توصیه</th><th>شرح / مقدار</th><th>توضیحات و پیگیری</th><th>وضعیت</th></tr></thead><tbody>' +
+        rows.map(r => '<tr><td>' + esc(r.date) + '</td><td>' + esc(r.type) +
+          '</td><td>' + esc(r.detail) + '</td><td>' + esc(r.note) +
+          '</td><td>' + esc(r.status) + '</td></tr>').join('') +
+        '</tbody></table>'
+      : 'برای این گلخانه‌دار هنوز برنامه یا توصیه‌ای ثبت نشده است.';
+  };
+
+  addRecommendation = function () {
+    if (!farms.length) return alert('ابتدا نام گلخانه‌دار را در بخش گلخانه‌داران ثبت کنید');
+    const farm = farms[Number(document.getElementById('recFarmSelect').value)];
+    const advice = document.getElementById('recAdvice').value.trim();
+    if (!farm) return alert('گلخانه‌دار را انتخاب کنید');
+    if (!advice) return alert('متن توصیه را وارد کنید');
+    const dateInput = document.getElementById('recDate');
+    const iso = dateInput.dataset.iso || todayISO();
+    recommendations.push({
+      farm: farm.name, date: iso, dateFa: jalaliDisplay(iso),
+      crop: document.getElementById('recCrop').value,
+      stage: document.getElementById('recStage').value,
+      title: document.getElementById('recTitle').value,
+      advice, follow: document.getElementById('recFollow').value
+    });
+    put('recommendations', recommendations);
+    ['recStage','recTitle','recAdvice','recFollow'].forEach(id =>
+      document.getElementById(id).value = '');
+    renderRecommendations();
+    renderCombinedReport();
+    alert('توصیه برای گلخانه‌دار انتخاب‌شده ذخیره شد');
+  };
+
+  function exportCombinedPdf() {
+    const idx = Number(document.getElementById('reportFarmSelect').value);
+    if (!farms[idx]) return alert('ابتدا گلخانه‌دار را انتخاب کنید');
+    renderCombinedReport();
+    if (!ops.some(o => o.farm === farms[idx].name) &&
+        !recommendations.some(r => r.farm === farms[idx].name)) {
+      return alert('برای این گلخانه‌دار هنوز برنامه یا توصیه‌ای ثبت نشده است');
+    }
+    if (window.Android && Android.printPdf) Android.printPdf();
+    else window.print();
+  }
+
+  document.getElementById('reportFarmSelect').addEventListener('change', renderCombinedReport);
+  document.getElementById('makeCombinedPdf').addEventListener('click', exportCombinedPdf);
+  const oldPdfButton = section.querySelector('button[onclick="exportRecommendationsPdf()"]');
+  if (oldPdfButton) oldPdfButton.textContent = 'تهیه PDF گزارش یکپارچه';
+  exportRecommendationsPdf = exportCombinedPdf;
+
+  const originalRender = render;
+  render = function () {
+    originalRender();
+    fillFarmerChoices();
+    renderCombinedReport();
+  };
+  fillFarmerChoices();
+  renderRecommendations();
+  renderCombinedReport();
+})();
+</script>
 </body>
 </html>
